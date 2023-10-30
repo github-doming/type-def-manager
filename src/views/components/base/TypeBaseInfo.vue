@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<h1>
-			基本信息 - {{ props.typeDef?.name }}
+			基本信息 - {{ props.type?.name }}
 		</h1>
 		<a-table bordered :data-source="propertySource" :columns="propertyColumns">
 			<template #bodyCell="{ column, text, record }">
@@ -42,16 +42,17 @@
 <script lang="ts" setup>
 import {computed, defineProps, reactive, UnwrapRef} from 'vue';
 import {propertyColumns, analysisTypeProperty, PropertyItem, ColumnItem} from "@/views/js/TypeBaseHelper";
-import {Type, Property, LocalValue} from "@/views/js/type";
+import {Type} from "@/views/js/type";
+import {LocalValue} from "@/views/js/type/property";
 
 const props = defineProps({
-	typeDef: Type,
+	type: Type,
 })
 
 
 const propertySource = computed<PropertyItem[]>({
 	get: () => {
-		return analysisTypeProperty(props?.typeDef);
+		return analysisTypeProperty(props?.type);
 	},
 	set: (keys) => {
 		console.log(1222354, keys);
@@ -66,11 +67,11 @@ const edit = (key: string) => {
 };
 const save = (key: string) => {
 	Object.assign(propertySource.value.filter(item => key === item.key)[0], editableData[key]);
-	if (!props.typeDef || !props.typeDef.properties) {
+	if (!props.type || !props.type.properties) {
 		delete editableData[key];
 		return;
 	}
-	for (const property of props.typeDef?.properties) {
+	for (const property of props.type?.properties) {
 		if (property.definition.type === key) {
 			property.value = editableData[key].value + '';
 			if (editableData[key].en_GB || editableData[key].en_US || editableData[key].zh_CN) {

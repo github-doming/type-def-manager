@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import {computed, defineProps, defineEmits} from 'vue';
-import {Type, TypeOption} from "@/views/js/type";
+import {TypeDataSet} from "@/views/js/type";
 
 interface TabItem {
 	key: string;
@@ -16,7 +16,7 @@ interface TabItem {
 
 const props = defineProps<{
 	selectType: string
-	typeDefs?: Type[]
+	dataSet?: TypeDataSet
 }>();
 
 const updateEmit = defineEmits<{
@@ -25,13 +25,12 @@ const updateEmit = defineEmits<{
 
 const typeItems = computed<TabItem[]>(() => {
 	let items: TabItem[] = [];
-	if (!props.typeDefs) {
+	if (!props.dataSet) {
 		return items;
 	}
-	for (const item of props.typeDefs) {
+	for (const item of props.dataSet.values()) {
 		items.push({key: item.key, label: item.name});
 	}
-
 	return items;
 });
 

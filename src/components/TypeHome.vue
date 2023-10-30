@@ -1,17 +1,17 @@
 <template>
-  <a-layout>
-    <TypeHomeHeader v-model:select-type="selectType" :typeDefs="typeDefs" />
-    <TypeHomeContent v-model:selected-operation="typeOperation" v-model:selected-menu="typeMenu">
-      <component :is="contentComponent" :typeDef="typeDef"></component>
-    </TypeHomeContent>
-    <TypeHomeFooter @upload-types="uploadTypes" @save-types="saveTypes"></TypeHomeFooter>
-  </a-layout>
+	<a-layout>
+		<TypeHomeHeader v-model:select-type="selectType" :dataSet="dataSet"/>
+		<TypeHomeContent v-model:selected-operation="typeOperation" v-model:selected-menu="typeMenu">
+			<component :is="contentComponent" :type="dataSet.getType(selectType)"></component>
+		</TypeHomeContent>
+		<TypeHomeFooter @upload-types="uploadTypes" @save-types="saveTypes"></TypeHomeFooter>
+	</a-layout>
 </template>
 
 <script lang="ts" setup>
-import { ref, shallowRef, watch, computed } from 'vue';
-import { Type } from "@/views/js/type";
-import { getContentComponent } from "@/views/js/TypeDefHelper";
+import {ref, shallowRef, watch} from 'vue';
+import {Type, TypeDataSet} from "@/views/js/type";
+import {getContentComponent} from "@/views/js/TypeDefHelper";
 
 import TypeHomeHeader from './TypeHomeHeader.vue'
 import TypeHomeContent from './TypeHomeContent.vue';
@@ -22,37 +22,33 @@ import TypeErrorPage from '@/views/components/TypeErrorPage.vue'
 const typeOperation = ref<string>('基本信息');
 const typeMenu = ref<string>('基础');
 const selectType = ref<string>('');
-const typeDefs = ref<Type[]>([]);
+const dataSet = ref<TypeDataSet>(new TypeDataSet);
 
 const contentComponent = shallowRef<object>(TypeErrorPage);
-
-const typeDef = computed(() => {
-  for (const item of typeDefs.value) {
-    if (item.key === selectType.value) {
-      return item;
-    }
-  }
-  return null;
-});
 
 watch(typeOperation, () => getContentComponent(contentComponent, typeOperation));
 
 
 const uploadTypes = (typeInfo: any) => {
-  changeType();
-  for (const key in typeInfo) {
-    //只有在没有赋值type的时候，才会选择第一个
-    if (!selectType.value) {
-      selectType.value = key;
-    }
-    let typeDef = new Type(key, typeInfo[key]);
-    typeDefs.value.push(typeDef);
-  }
+	changeType();
+	for (const key in typeInfo) {
+		//只有在没有赋值type的时候，才会选择第一个
+		if (!selectType.value) {
+			selectType.value = key;
+		}
+		if (dataSet.value.hasType(key)) {
+			continue;
+		}
+		let parent = typeInfo[key]['parent'];
+		let parentType = dataSet.value.getType(parent);
+		let type = new Type(key, typeInfo[key], parentType);
+		dataSet.value.setType(type);
+	}
 }
 
 const saveTypes = () => {
-	const jsonResult:any = {};
-	for (const type of typeDefs.value) {
+	const jsonResult: any = {};
+	for (const type of dataSet.value.values()) {
 		jsonResult[type.key] = type.toJson();
 	}
 	let jsonContent = JSON.stringify({'typeInfo': jsonResult});
@@ -68,9 +64,9 @@ const saveTypes = () => {
 }
 
 const changeType = () => {
-  getContentComponent(contentComponent, typeOperation)
-  typeDefs.value.length = 0;
-  selectType.value = '';
+	getContentComponent(contentComponent, typeOperation)
+	dataSet.value.clear();
+	selectType.value = '';
 }
 
 </script>

@@ -3,18 +3,49 @@ import {InitRule} from "@/views/js/type/init-rule";
 import {Layout} from "@/views/js/type/layout";
 import {Property} from "@/views/js/type/property";
 
-export class Type {
+
+export class TypeDataSet {
+	public nodes: Map<string, Type>;
 	
+	constructor() {
+		this.nodes = new Map();
+	}
+	
+	
+	setType(type: Type): TypeDataSet {
+		this.nodes.set(type.key, type);
+		return this;
+	}
+	
+	getType(key: string): Type | undefined {
+		return this.nodes.get(key);
+	}
+	
+	hasType(key: string): boolean {
+		return this.nodes.has(key);
+	}
+	
+	values(): IterableIterator<Type> {
+		return this.nodes.values();
+	}
+	
+	clear(): TypeDataSet {
+		this.nodes.clear();
+		return this;
+	}
+}
+
+export class Type {
 	private readonly _key: string;
-	private readonly _parent: string;
+	private readonly _parent: Type | undefined;
 	private readonly _properties: Property[];
 	private readonly _attributes: Attribute[];
 	private readonly _initRules: InitRule[];
 	private readonly _layouts: Layout[];
 	
-	constructor(key: string, dataSet: any) {
+	constructor(key: string, dataSet: any, parent: Type | undefined) {
 		this._key = key;
-		this._parent = dataSet['parent']
+		this._parent = parent;
 		this._properties = [];
 		for (const property of dataSet['properties']) {
 			this._properties.push(new Property(this, property))
@@ -22,7 +53,7 @@ export class Type {
 		
 		this._attributes = [];
 		for (const key in dataSet['attributes']) {
-			this._attributes.push(new Attribute(this,key, dataSet['attributes'][key]))
+			this._attributes.push(new Attribute(this, key, dataSet['attributes'][key]))
 		}
 		
 		this._initRules = [];
@@ -32,7 +63,7 @@ export class Type {
 		
 		this._layouts = [];
 		for (const key in dataSet['layouts']) {
-			this._layouts.push(new Layout(this,key, dataSet['layouts'][key]))
+			this._layouts.push(new Layout(this, key, dataSet['layouts'][key]))
 		}
 		
 	}
@@ -57,10 +88,10 @@ export class Type {
 	}
 	
 	
-	get parent(): string {
+	get parent(): Type | undefined {
 		return this._parent;
 	}
-
+	
 	
 	get properties(): Property[] {
 		return this._properties;
@@ -82,7 +113,7 @@ export class Type {
 		
 		const jsonResult: any = {};
 		jsonResult['name'] = this.key;
-		jsonResult['parent'] = this.parent;
+		jsonResult['parent'] = this.parent?.key;
 		
 		if (this.attributes) {
 			jsonResult['attributes'] = {};
