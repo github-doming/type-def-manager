@@ -1,7 +1,7 @@
 import {Attribute} from "@/views/js/type/attribute";
 import {InitRule} from "@/views/js/type/init-rule";
 import {Layout} from "@/views/js/type/layout";
-import {Property} from "@/views/js/type/property";
+import {Property, PropertyDataSet} from "@/views/js/type/property";
 
 
 export class TypeDataSet {
@@ -38,7 +38,7 @@ export class TypeDataSet {
 export class Type {
 	private readonly _key: string;
 	private readonly _parent: Type | undefined;
-	private readonly _properties: Property[];
+	private readonly _properties: PropertyDataSet;
 	private readonly _attributes: Attribute[];
 	private readonly _initRules: InitRule[];
 	private readonly _layouts: Layout[];
@@ -46,9 +46,10 @@ export class Type {
 	constructor(key: string, dataSet: any, parent: Type | undefined) {
 		this._key = key;
 		this._parent = parent;
-		this._properties = [];
-		for (const property of dataSet['properties']) {
-			this._properties.push(new Property(this, property))
+		this._properties = new PropertyDataSet();
+		for (const item of dataSet['properties']) {
+			const property = new Property(this, item);
+			this.properties.setProperty(property);
 		}
 		
 		this._attributes = [];
@@ -70,12 +71,7 @@ export class Type {
 	
 	
 	get name(): string {
-		let displayName;
-		for (const property of this._properties) {
-			if (property.definition.type == 'displayName') {
-				displayName = property.localValue?.zh_CN;
-			}
-		}
+		const displayName = this.properties.getProperty('displayName')?.localValue?.zh_CN
 		if (displayName) {
 			return displayName;
 		}
@@ -93,7 +89,7 @@ export class Type {
 	}
 	
 	
-	get properties(): Property[] {
+	get properties(): PropertyDataSet {
 		return this._properties;
 	}
 	
@@ -134,10 +130,7 @@ export class Type {
 			}
 		}
 		if (this.properties) {
-			jsonResult['properties'] = [];
-			for (const property of this.properties) {
-				jsonResult['properties'].push(property.toJson());
-			}
+			jsonResult['properties'] = this.properties.toJson();
 		}
 		
 		

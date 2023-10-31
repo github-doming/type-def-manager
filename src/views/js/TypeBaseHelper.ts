@@ -64,7 +64,7 @@ export const analysisTypeProperty = (typeDef: Type | undefined): PropertyItem[] 
 	if (!properties) {
 		return dataSource;
 	}
-	for (const property of properties) {
+	for (const property of properties.values()) {
 		dataSource.push({
 			context: property.context.name,
 			key: property.definition.type,

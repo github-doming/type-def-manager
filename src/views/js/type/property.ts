@@ -1,10 +1,42 @@
 import {Type} from "@/views/js/type";
 
+
+export class PropertyDataSet {
+	public nodes: Map<string, Property>;
+	
+	constructor() {
+		this.nodes = new Map();
+	}
+	
+	
+	setProperty(property: Property): PropertyDataSet {
+		this.nodes.set(property.definition.type, property);
+		return this;
+	}
+	
+	getProperty(key: string): Property | undefined {
+		return this.nodes.get(key);
+	}
+	
+	values(): IterableIterator<Property> {
+		return this.nodes.values();
+	}
+	
+	toJson():Map<string, any>[] {
+		const jsonResult:Map<string, any>[] = [];
+		for (const property of this.nodes.values()) {
+			jsonResult.push(property.toJson());
+		}
+		return jsonResult;
+	}
+}
+
+
 export class Property {
 	private readonly _context: Type;
 	private readonly _definition: Definition;
 	private readonly _holder: string;
-	private readonly _isDefault: boolean;
+	private readonly _isDefault: string;
 	private _value: string;
 	private _localValue: LocalValue | undefined;
 	
@@ -33,7 +65,7 @@ export class Property {
 	}
 	
 	
-	get isDefault(): boolean {
+	get isDefault(): string {
 		return this._isDefault;
 	}
 	
@@ -54,15 +86,15 @@ export class Property {
 		this._localValue = value;
 	}
 	
-	toJson() {
-		const jsonResult: any = {};
-		jsonResult['contextKey'] = this.context.key;
-		jsonResult['definitionKey'] = this.definition.toJson();
-		jsonResult['holderKey'] = this.holder;
-		jsonResult['isDefault'] = this.isDefault;
-		jsonResult['value'] = this.value;
+	toJson(): Map<string, any> {
+		const jsonResult: Map<string, any> = new Map<string, object>();
+		jsonResult.set('contextKey', this.context.key);
+		jsonResult.set('definitionKey', this.definition.toJson());
+		jsonResult.set('holderKey', this.holder);
+		jsonResult.set('isDefault', this.isDefault);
+		jsonResult.set('value', this.value);
 		if (this.localValue) {
-			jsonResult['localValue'] = this.localValue.toJson();
+			jsonResult.set('localValue', this.localValue.toJson());
 		}
 		return jsonResult;
 	}
