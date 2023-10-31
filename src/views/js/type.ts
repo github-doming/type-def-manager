@@ -1,7 +1,8 @@
-import {Attribute} from "@/views/js/type/attribute";
+import {AttributeDataSet} from "@/views/js/type/attribute";
 import {InitRule} from "@/views/js/type/init-rule";
 import {Layout} from "@/views/js/type/layout";
 import {PropertiesContext, PropertiesHolder, PropertyDataSet} from "@/views/js/type/property";
+import {getPropertyValue} from "@/views/js/type/type-factory-helper";
 
 
 export class TypeDataSet {
@@ -43,7 +44,7 @@ export class Type implements PropertiesContext, PropertiesHolder {
 	private readonly _key: string;
 	private readonly _parent: Type | undefined;
 	private readonly _properties: PropertyDataSet;
-	private readonly _attributes: Attribute[];
+	private readonly _attributes: AttributeDataSet;
 	private readonly _initRules: InitRule[];
 	private readonly _layouts: Layout[];
 	
@@ -51,17 +52,13 @@ export class Type implements PropertiesContext, PropertiesHolder {
 		this._key = key;
 		this._parent = parent;
 		this._properties = new PropertyDataSet();
-		this._attributes = [];
+		this._attributes = new AttributeDataSet();
 		this._initRules = [];
 		this._layouts = [];
 	}
 	
-	get name(): string {
-		const displayName = this.properties.getProperty('displayName')?.localValue?.zh_CN
-		if (displayName) {
-			return displayName;
-		}
-		return this.key;
+	get displayName(): string {
+		return getPropertyValue('displayName', this);
 	}
 	
 	get key(): string {
@@ -76,7 +73,7 @@ export class Type implements PropertiesContext, PropertiesHolder {
 		return this._properties;
 	}
 	
-	get attributes(): Attribute[] {
+	get attributes(): AttributeDataSet {
 		return this._attributes;
 	}
 	
@@ -103,19 +100,16 @@ export class Type implements PropertiesContext, PropertiesHolder {
 				jsonResult['initRules'].push(initRule.toJson());
 			}
 		}
-		//
-		// if (this.attributes) {
-		// 	jsonResult['attributes'] = {};
-		// 	for (const attribute of this.attributes) {
-		// 		jsonResult['attributes'][attribute.key] = attribute.toJson();
-		// 	}
-		// }
-		// if (this.layouts) {
-		// 	jsonResult['layouts'] = {};
-		// 	for (const layout of this.layouts) {
-		// 		jsonResult['layouts'][layout.key] = layout.toJson();
-		// 	}
-		// }
+		
+		if (this.attributes) {
+			jsonResult['attributes'] = this.attributes.toJson();
+		}
+		if (this.layouts) {
+			jsonResult['layouts'] = {};
+			for (const layout of this.layouts) {
+				jsonResult['layouts'][layout.key] = layout.toJson();
+			}
+		}
 		
 		
 		return jsonResult;

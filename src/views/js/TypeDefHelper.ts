@@ -14,19 +14,31 @@ export function getMenuItem(
 	} as ItemType;
 }
 
+
+export interface ColumnItem {
+	title: string;
+	dataIndex: string;
+	width?: string;
+	fixed?: string;
+	children?: ColumnItem[]
+}
+
+import {Ref, ShallowRef} from 'vue';
 import TypeBaseInfo from "../components/base/TypeBaseInfo.vue";
 import TypeInitRule from "../components/base/TypeInitRule.vue";
-import {Ref, ShallowRef} from 'vue';
 import TypeExpandColumn from "@/views/components/base/TypeExpandColumn.vue";
+import PropertyBaseInfo from "@/views/components/property/PropertyBaseInfo.vue";
 
 export function getContentComponent(contentComponent: ShallowRef<object | undefined>, typeOperation: Ref<string>) {
 	let component: object = TypeBaseInfo;
-	if (typeOperation.value === '基本信息') {
+	if (typeOperation.value === 'BaseInfo') {
 		component = TypeBaseInfo;
-	} else if (typeOperation.value === '初始化规则') {
+	} else if (typeOperation.value === 'InitRule') {
 		component = TypeInitRule;
-	} else if (typeOperation.value === '模型扩列') {
+	} else if (typeOperation.value === 'ExpandColumn') {
 		component = TypeExpandColumn;
+	} else if (typeOperation.value === 'PropertyInfo') {
+		component = PropertyBaseInfo;
 	}
 	return contentComponent.value = component;
 }

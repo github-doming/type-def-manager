@@ -5,7 +5,7 @@ export class InitRule {
 	private readonly _value: string;
 	
 	constructor(context: Type, value: any) {
-		this._context = context.name;
+		this._context = context.displayName;
 		this._value = value;
 	}
 	

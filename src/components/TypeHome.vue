@@ -20,8 +20,8 @@ import TypeErrorPage from '@/views/components/TypeErrorPage.vue'
 import {analysisTypeInfo} from "@/views/js/type/type-factory-helper";
 
 
-const typeOperation = ref<string>('基本信息');
-const typeMenu = ref<string>('基础');
+const typeOperation = ref<string>('BaseInfo');
+const typeMenu = ref<string>('Base');
 const selectType = ref<string>('');
 const dataSet = ref<TypeDataSet>(new TypeDataSet);
 

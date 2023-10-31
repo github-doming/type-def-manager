@@ -29,7 +29,7 @@ const typeItems = computed<TabItem[]>(() => {
 		return items;
 	}
 	for (const item of props.dataSet.values) {
-		items.push({key: item.key, label: item.name});
+		items.push({key: item.key, label: item.displayName});
 	}
 	return items;
 });

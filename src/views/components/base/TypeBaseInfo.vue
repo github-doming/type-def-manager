@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<h1>
-			基本信息 - {{ props.type?.name }}
+			基本信息 - {{ props.type?.displayName }}
 		</h1>
 		<a-table bordered :data-source="propertySource" :columns="propertyColumns" :pagination="false">
 			<template #bodyCell="{ column, text, record }">
@@ -43,24 +43,19 @@
 
 <script lang="ts" setup>
 import {computed, defineProps, reactive, UnwrapRef} from 'vue';
-import {propertyColumns, analysisTypeProperty, PropertyItem, ColumnItem} from "@/views/js/TypeBaseHelper";
+import {propertyColumns, analysisTypeProperty, PropertyItem} from "@/views/js/TypeBaseHelper";
 import {Type} from "@/views/js/type";
 import {Definition, LocalValue, Property} from "@/views/js/type/property";
+import {ColumnItem} from "@/views/js/TypeDefHelper";
 
 const props = defineProps({
 	type: Type,
 })
 
 
-const propertySource = computed<PropertyItem[]>({
-	get: () => {
-		return analysisTypeProperty(props?.type);
-	},
-	set: (keys) => {
-		console.log(1222354, keys);
-		debugger
-	}
-})
+const propertySource = computed<PropertyItem[]>(() => {
+	return analysisTypeProperty(props?.type);
+});
 
 
 const editableData: UnwrapRef<Record<string, PropertyItem>> = reactive({});
@@ -68,8 +63,8 @@ const edit = (key: string) => {
 	const source = propertySource.value.filter(item => key === item.key)[0];
 	editableData[key] = Object.assign({}, source);
 	if (props.type) {
-		editableData[key].context = props.type?.name;
-		editableData[key].holder = props.type?.name;
+		editableData[key].context = props.type?.displayName;
+		editableData[key].holder = props.type?.displayName;
 	}
 };
 const save = (key: string) => {

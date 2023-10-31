@@ -1,13 +1,13 @@
 export interface PropertiesContext {
 	get key(): string;
 	
-	get name(): string;
+	get displayName(): string;
 }
 
 export interface PropertiesHolder {
 	get key(): string;
 	
-	get name(): string;
+	get displayName(): string;
 	
 	get properties(): PropertyDataSet;
 }

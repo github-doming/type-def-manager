@@ -1,5 +1,6 @@
 import {Type} from "@/views/js/type";
 import {Property} from "@/views/js/type/property";
+import {ColumnItem} from "@/views/js/TypeDefHelper";
 
 export const propertyColumns: ColumnItem[] = [
 	{
@@ -43,11 +44,6 @@ export const propertyColumns: ColumnItem[] = [
 	},
 ];
 
-export interface ColumnItem {
-	title: string;
-	dataIndex: string;
-	width?: string;
-}
 
 
 export interface PropertyItem {
@@ -79,8 +75,8 @@ export const analysisTypeProperty = (typeDef: Type | undefined): PropertyItem[] 
 			continue;
 		}
 		dataSource.push({
-			context: property.context.name,
-			holder: property.holder.name,
+			context: property.context.displayName,
+			holder: property.holder.displayName,
 			key: property.definition.type,
 			definition: property.definition.toJson(),
 			value: property.value,
