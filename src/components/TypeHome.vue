@@ -17,6 +17,7 @@ import TypeHomeHeader from './TypeHomeHeader.vue'
 import TypeHomeContent from './TypeHomeContent.vue';
 import TypeHomeFooter from './TypeHomeFooter.vue'
 import TypeErrorPage from '@/views/components/TypeErrorPage.vue'
+import {analysisTypeInfo} from "@/views/js/type/type-factory-helper";
 
 
 const typeOperation = ref<string>('基本信息');
@@ -29,26 +30,19 @@ const contentComponent = shallowRef<object>(TypeErrorPage);
 watch(typeOperation, () => getContentComponent(contentComponent, typeOperation));
 
 
-const uploadTypes = (typeInfo: any) => {
+const uploadTypes = (jsonData: any) => {
 	changeType();
-	for (const key in typeInfo) {
-		//只有在没有赋值type的时候，才会选择第一个
-		if (!selectType.value) {
-			selectType.value = key;
-		}
-		if (dataSet.value.hasType(key)) {
-			continue;
-		}
-		let parent = typeInfo[key]['parent'];
-		let parentType = dataSet.value.getType(parent);
-		let type = new Type(key, typeInfo[key], parentType);
-		dataSet.value.setType(type);
+	//循环加载所有类型信息
+	for (const key in jsonData) {
+		analysisTypeJsonData(key, jsonData);
 	}
+	//只有在没有赋值type的时候，才会选择第一个
+	selectType.value = dataSet.value.topType.key;
 }
 
 const saveTypes = () => {
 	const jsonResult: any = {};
-	for (const type of dataSet.value.values()) {
+	for (const type of dataSet.value.values) {
 		jsonResult[type.key] = type.toJson();
 	}
 	let jsonContent = JSON.stringify({'typeInfo': jsonResult});
@@ -68,6 +62,20 @@ const changeType = () => {
 	dataSet.value.clear();
 	selectType.value = '';
 }
+
+const analysisTypeJsonData = (key: string, jsonData: any) => {
+	//已经加载则跳出
+	if (dataSet.value.hasType(key)) {
+		return;
+	}
+	let parent = jsonData[key]['parent'];
+	//递归获取父级
+	if (parent) {
+		analysisTypeJsonData(parent, jsonData);
+	}
+	analysisTypeInfo(jsonData[key],dataSet.value);
+}
+
 
 </script>
 

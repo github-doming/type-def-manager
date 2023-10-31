@@ -8,11 +8,13 @@
 				<template v-if="canEditCell(column,record)">
 					<div>
 						<a-input
-								v-if="isInputCell(column,record)"
-								v-model:value="editableData[record.key][column.dataIndex]"
-								style="margin: -5px 0"
+							v-if="isInputCell(column,record)"
+							v-model:value="editableData[record.key][column.dataIndex]"
+							style="margin: -5px 0"
 						/>
-						<a-radio-group v-else-if="isBooleanCell(column,record)" v-model:value="editableData[record.key][column.dataIndex]">
+						<a-radio-group
+							v-else-if="isBooleanCell(column,record)"
+							v-model:value="editableData[record.key][column.dataIndex]">
 							<a-radio :value="true">true</a-radio>
 							<a-radio :value="false">false</a-radio>
 						</a-radio-group>
@@ -43,7 +45,7 @@
 import {computed, defineProps, reactive, UnwrapRef} from 'vue';
 import {propertyColumns, analysisTypeProperty, PropertyItem, ColumnItem} from "@/views/js/TypeBaseHelper";
 import {Type} from "@/views/js/type";
-import {LocalValue} from "@/views/js/type/property";
+import {LocalValue, Property} from "@/views/js/type/property";
 
 const props = defineProps({
 	type: Type,
@@ -67,22 +69,28 @@ const edit = (key: string) => {
 };
 const save = (key: string) => {
 	Object.assign(propertySource.value.filter(item => key === item.key)[0], editableData[key]);
-	if (!props.type || !props.type.properties) {
+	if (!props.type) {
 		delete editableData[key];
 		return;
 	}
-	for (const property of props.type?.properties) {
-		if (property.definition.type === key) {
-			property.value = editableData[key].value + '';
-			if (editableData[key].en_GB || editableData[key].en_US || editableData[key].zh_CN) {
-				if (!property.localValue) {
-					property.localValue = new LocalValue(undefined);
-				}
-				property.localValue.en_GB = editableData[key].en_GB;
-				property.localValue.en_US = editableData[key].en_US;
-				property.localValue.zh_CN = editableData[key].zh_CN;
-			}
+	let property = props.type.properties.getProperty(key);
+	if (!property) {
+		delete editableData[key];
+		return;
+		// const dataSet = {
+		// 	'contextKey': props.type.key,
+		// 	'definitionKey': props.type.key,
+		// }
+		// property = new Property(props.type);
+	}
+	property.value = editableData[key].value + '';
+	if (editableData[key].en_GB || editableData[key].en_US || editableData[key].zh_CN) {
+		if (!property.localValue) {
+			property.localValue = new LocalValue(undefined);
 		}
+		property.localValue.en_GB = editableData[key].en_GB;
+		property.localValue.en_US = editableData[key].en_US;
+		property.localValue.zh_CN = editableData[key].zh_CN;
 	}
 	delete editableData[key];
 };

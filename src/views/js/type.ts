@@ -1,7 +1,9 @@
 import {Attribute} from "@/views/js/type/attribute";
 import {InitRule} from "@/views/js/type/init-rule";
 import {Layout} from "@/views/js/type/layout";
-import {Property, PropertyDataSet} from "@/views/js/type/property";
+import {PropertiesContext, PropertiesHolder, Property, PropertyDataSet} from "@/views/js/type/property";
+import {UnwrapRef} from "vue";
+import {analysisPropertyInfo} from "@/views/js/type/type-factory-helper";
 
 
 export class TypeDataSet {
@@ -25,7 +27,7 @@ export class TypeDataSet {
 		return this.nodes.has(key);
 	}
 	
-	values(): IterableIterator<Type> {
+	get values(): IterableIterator<Type> {
 		return this.nodes.values();
 	}
 	
@@ -33,9 +35,13 @@ export class TypeDataSet {
 		this.nodes.clear();
 		return this;
 	}
+	
+	get topType(): Type {
+		return this.nodes.values().next().value;
+	}
 }
 
-export class Type {
+export class Type implements PropertiesContext, PropertiesHolder {
 	private readonly _key: string;
 	private readonly _parent: Type | undefined;
 	private readonly _properties: PropertyDataSet;
@@ -43,32 +49,14 @@ export class Type {
 	private readonly _initRules: InitRule[];
 	private readonly _layouts: Layout[];
 	
-	constructor(key: string, dataSet: any, parent: Type | undefined) {
+	constructor(key: string, parent: Type | undefined) {
 		this._key = key;
 		this._parent = parent;
 		this._properties = new PropertyDataSet();
-		for (const item of dataSet['properties']) {
-			const property = new Property(this, item);
-			this.properties.setProperty(property);
-		}
-		
 		this._attributes = [];
-		for (const key in dataSet['attributes']) {
-			this._attributes.push(new Attribute(this, key, dataSet['attributes'][key]))
-		}
-		
 		this._initRules = [];
-		for (const initRule of dataSet['initRules']) {
-			this._initRules.push(new InitRule(this, initRule))
-		}
-		
 		this._layouts = [];
-		for (const key in dataSet['layouts']) {
-			this._layouts.push(new Layout(this, key, dataSet['layouts'][key]))
-		}
-		
 	}
-	
 	
 	get name(): string {
 		const displayName = this.properties.getProperty('displayName')?.localValue?.zh_CN
@@ -78,16 +66,13 @@ export class Type {
 		return this.key;
 	}
 	
-	
 	get key(): string {
 		return this._key;
 	}
 	
-	
 	get parent(): Type | undefined {
 		return this._parent;
 	}
-	
 	
 	get properties(): PropertyDataSet {
 		return this._properties;

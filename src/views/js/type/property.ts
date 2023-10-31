@@ -1,5 +1,14 @@
-import {Type} from "@/views/js/type";
+export interface PropertiesContext {
+	get key(): string;
+	
+	get name(): string;
+}
 
+export interface PropertiesHolder {
+	get key(): string;
+	
+	get properties(): PropertyDataSet;
+}
 
 export class PropertyDataSet {
 	public nodes: Map<string, Property>;
@@ -7,7 +16,6 @@ export class PropertyDataSet {
 	constructor() {
 		this.nodes = new Map();
 	}
-	
 	
 	setProperty(property: Property): PropertyDataSet {
 		this.nodes.set(property.definition.type, property);
@@ -22,8 +30,8 @@ export class PropertyDataSet {
 		return this.nodes.values();
 	}
 	
-	toJson():Map<string, any>[] {
-		const jsonResult:Map<string, any>[] = [];
+	toJson(): Map<string, any>[] {
+		const jsonResult: Map<string, any>[] = [];
 		for (const property of this.nodes.values()) {
 			jsonResult.push(property.toJson());
 		}
@@ -33,26 +41,23 @@ export class PropertyDataSet {
 
 
 export class Property {
-	private readonly _context: Type;
+	private readonly _context: PropertiesContext;
 	private readonly _definition: Definition;
-	private readonly _holder: string;
+	private readonly _holder: PropertiesHolder;
 	private readonly _isDefault: string;
 	private _value: string;
 	private _localValue: LocalValue | undefined;
 	
-	constructor(context: Type, property: any) {
+	constructor(context: PropertiesContext, holder: PropertiesHolder, definition: Definition, isDefault: string) {
 		this._context = context;
-		this._definition = new Definition(property['definitionKey'])
-		this._holder = property['holderKey'];
-		this._isDefault = property['isDefault'];
-		this._value = property['value'];
-		if (property['localValue']) {
-			this._localValue = new LocalValue(property['localValue']);
-		}
+		this._definition = definition;
+		this._holder = holder;
+		this._isDefault = isDefault;
+		this._value = '';
 	}
 	
 	
-	get context(): Type {
+	get context(): PropertiesContext {
 		return this._context;
 	}
 	
@@ -60,7 +65,7 @@ export class Property {
 		return this._definition;
 	}
 	
-	get holder(): string {
+	get holder(): PropertiesHolder {
 		return this._holder;
 	}
 	
@@ -90,7 +95,7 @@ export class Property {
 		const jsonResult: Map<string, any> = new Map<string, object>();
 		jsonResult.set('contextKey', this.context.key);
 		jsonResult.set('definitionKey', this.definition.toJson());
-		jsonResult.set('holderKey', this.holder);
+		jsonResult.set('holderKey', this.holder.key);
 		jsonResult.set('isDefault', this.isDefault);
 		jsonResult.set('value', this.value);
 		if (this.localValue) {
@@ -101,7 +106,7 @@ export class Property {
 }
 
 
-class Definition {
+export class Definition {
 	private readonly _classname: string;
 	private readonly _type: string;
 	
