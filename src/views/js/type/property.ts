@@ -7,6 +7,8 @@ export interface PropertiesContext {
 export interface PropertiesHolder {
 	get key(): string;
 	
+	get name(): string;
+	
 	get properties(): PropertyDataSet;
 }
 
@@ -30,8 +32,8 @@ export class PropertyDataSet {
 		return this.nodes.values();
 	}
 	
-	toJson(): Map<string, any>[] {
-		const jsonResult: Map<string, any>[] = [];
+	toJson(): any[] {
+		const jsonResult = [];
 		for (const property of this.nodes.values()) {
 			jsonResult.push(property.toJson());
 		}
@@ -91,15 +93,15 @@ export class Property {
 		this._localValue = value;
 	}
 	
-	toJson(): Map<string, any> {
-		const jsonResult: Map<string, any> = new Map<string, object>();
-		jsonResult.set('contextKey', this.context.key);
-		jsonResult.set('definitionKey', this.definition.toJson());
-		jsonResult.set('holderKey', this.holder.key);
-		jsonResult.set('isDefault', this.isDefault);
-		jsonResult.set('value', this.value);
+	toJson(): string {
+		const jsonResult: any = {};
+		jsonResult['contextKey'] = this.context.key;
+		jsonResult['definitionKey'] = this.definition.toJson();
+		jsonResult['holderKey'] = this.holder.key;
+		jsonResult['isDefault'] = this.isDefault;
+		jsonResult['value'] = this.value;
 		if (this.localValue) {
-			jsonResult.set('localValue', this.localValue.toJson());
+			jsonResult['localValue'] = this.localValue.toJson();
 		}
 		return jsonResult;
 	}

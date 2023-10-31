@@ -1,4 +1,5 @@
 import {Type} from "@/views/js/type";
+import {Property} from "@/views/js/type/property";
 
 export const propertyColumns: ColumnItem[] = [
 	{
@@ -9,6 +10,11 @@ export const propertyColumns: ColumnItem[] = [
 	{
 		title: '定义',
 		dataIndex: 'key',
+		width: '10%',
+	},
+	{
+		title: '持有者',
+		dataIndex: 'holder',
 		width: '10%',
 	},
 	{
@@ -48,32 +54,51 @@ export interface PropertyItem {
 	[key: string]: string | boolean | undefined;
 	
 	context: string;
+	holder: string;
 	key: string;
+	definition: string;
 	value: string;
 	en_GB: string | undefined;
 	en_US: string | undefined;
 	zh_CN: string | undefined;
 }
 
+const TYPE_PROPERTY_KEYS: string[] = [
+	'displayName', 'description', 'tooltip', 'icon', 'instantiable'
+]
+
 export const analysisTypeProperty = (typeDef: Type | undefined): PropertyItem[] => {
 	const dataSource: PropertyItem[] = [];
 	if (!typeDef) {
 		return dataSource;
 	}
-	const properties = typeDef.properties;
-	if (!properties) {
-		return dataSource;
-	}
-	for (const property of properties.values()) {
+	for (const key of TYPE_PROPERTY_KEYS) {
+		const property = getTypeProperty(typeDef, key);
+		if (!property) {
+			alert('类型属性' + key + '不存在，请查证数据')
+			continue;
+		}
 		dataSource.push({
 			context: property.context.name,
+			holder: property.holder.name,
 			key: property.definition.type,
+			definition: property.definition.toJson(),
 			value: property.value,
 			en_GB: property.localValue?.en_GB,
 			en_US: property.localValue?.en_US,
 			zh_CN: property.localValue?.zh_CN
 		});
 	}
-	
 	return dataSource;
+}
+
+function getTypeProperty(typeDef: Type, key: string): Property | undefined {
+	const property = typeDef.properties.getProperty(key);
+	if (property) {
+		return property
+	}
+	if (typeDef.parent) {
+		return getTypeProperty(typeDef.parent, key)
+	}
+	return undefined;
 }

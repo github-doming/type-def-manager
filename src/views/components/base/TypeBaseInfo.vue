@@ -3,7 +3,7 @@
 		<h1>
 			基本信息 - {{ props.type?.name }}
 		</h1>
-		<a-table bordered :data-source="propertySource" :columns="propertyColumns">
+		<a-table bordered :data-source="propertySource" :columns="propertyColumns" :pagination="false">
 			<template #bodyCell="{ column, text, record }">
 				<template v-if="canEditCell(column,record)">
 					<div>
@@ -45,7 +45,7 @@
 import {computed, defineProps, reactive, UnwrapRef} from 'vue';
 import {propertyColumns, analysisTypeProperty, PropertyItem, ColumnItem} from "@/views/js/TypeBaseHelper";
 import {Type} from "@/views/js/type";
-import {LocalValue, Property} from "@/views/js/type/property";
+import {Definition, LocalValue, Property} from "@/views/js/type/property";
 
 const props = defineProps({
 	type: Type,
@@ -65,7 +65,12 @@ const propertySource = computed<PropertyItem[]>({
 
 const editableData: UnwrapRef<Record<string, PropertyItem>> = reactive({});
 const edit = (key: string) => {
-	editableData[key] = Object.assign({}, propertySource.value.filter(item => key === item.key)[0]);
+	const source = propertySource.value.filter(item => key === item.key)[0];
+	editableData[key] = Object.assign({}, source);
+	if (props.type) {
+		editableData[key].context = props.type?.name;
+		editableData[key].holder = props.type?.name;
+	}
 };
 const save = (key: string) => {
 	Object.assign(propertySource.value.filter(item => key === item.key)[0], editableData[key]);
@@ -75,13 +80,9 @@ const save = (key: string) => {
 	}
 	let property = props.type.properties.getProperty(key);
 	if (!property) {
-		delete editableData[key];
-		return;
-		// const dataSet = {
-		// 	'contextKey': props.type.key,
-		// 	'definitionKey': props.type.key,
-		// }
-		// property = new Property(props.type);
+		const definition = new Definition(editableData[key].definition);
+		property = new Property(props.type, props.type, definition, "true");
+		props.type.properties.setProperty(property);
 	}
 	property.value = editableData[key].value + '';
 	if (editableData[key].en_GB || editableData[key].en_US || editableData[key].zh_CN) {
@@ -100,7 +101,7 @@ const cancel = (key: string) => {
 
 const canEditCell = (column: ColumnItem, record: PropertyItem): boolean => {
 	let index = column.dataIndex;
-	if (['context', 'key', 'operation'].includes(index)) {
+	if (['context', 'key', 'holder', 'operation'].includes(index)) {
 		return false
 	}
 	if (['value'].includes(index)) {

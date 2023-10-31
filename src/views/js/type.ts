@@ -1,9 +1,7 @@
 import {Attribute} from "@/views/js/type/attribute";
 import {InitRule} from "@/views/js/type/init-rule";
 import {Layout} from "@/views/js/type/layout";
-import {PropertiesContext, PropertiesHolder, Property, PropertyDataSet} from "@/views/js/type/property";
-import {UnwrapRef} from "vue";
-import {analysisPropertyInfo} from "@/views/js/type/type-factory-helper";
+import {PropertiesContext, PropertiesHolder, PropertyDataSet} from "@/views/js/type/property";
 
 
 export class TypeDataSet {
@@ -96,11 +94,8 @@ export class Type implements PropertiesContext, PropertiesHolder {
 		jsonResult['name'] = this.key;
 		jsonResult['parent'] = this.parent?.key;
 		
-		if (this.attributes) {
-			jsonResult['attributes'] = {};
-			for (const attribute of this.attributes) {
-				jsonResult['attributes'][attribute.key] = attribute.toJson();
-			}
+		if (this.properties) {
+			jsonResult['properties'] = this.properties.toJson();
 		}
 		if (this.initRules) {
 			jsonResult['initRules'] = [];
@@ -108,15 +103,19 @@ export class Type implements PropertiesContext, PropertiesHolder {
 				jsonResult['initRules'].push(initRule.toJson());
 			}
 		}
-		if (this.layouts) {
-			jsonResult['layouts'] = {};
-			for (const layout of this.layouts) {
-				jsonResult['layouts'][layout.key] = layout.toJson();
-			}
-		}
-		if (this.properties) {
-			jsonResult['properties'] = this.properties.toJson();
-		}
+		//
+		// if (this.attributes) {
+		// 	jsonResult['attributes'] = {};
+		// 	for (const attribute of this.attributes) {
+		// 		jsonResult['attributes'][attribute.key] = attribute.toJson();
+		// 	}
+		// }
+		// if (this.layouts) {
+		// 	jsonResult['layouts'] = {};
+		// 	for (const layout of this.layouts) {
+		// 		jsonResult['layouts'][layout.key] = layout.toJson();
+		// 	}
+		// }
 		
 		
 		return jsonResult;

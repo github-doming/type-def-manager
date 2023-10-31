@@ -29,14 +29,13 @@ export const analysisPropertyInfo = (dataSet: any, holder: PropertiesHolder, typ
 	if (!context) {
 		throw new Error('Context information needs to exist');
 	}
-	const definition = new Definition(dataSet['definitionKey'])
+	const definition = new Definition(dataSet['definitionKey']);
 	const isDefault = dataSet['isDefault'];
 	
 	const property = new Property(context, holder, definition, isDefault);
 	holder.properties.setProperty(property);
-	
 	property.value = dataSet['value'];
 	if (dataSet['localValue']) {
-		property.localValue = new LocalValue(property['localValue']);
+		property.localValue = new LocalValue(dataSet['localValue']);
 	}
 }

@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineProps, defineEmits} from 'vue';
+import {computed, defineProps, defineEmits, UnwrapRef} from 'vue';
 import {TypeDataSet} from "@/views/js/type";
 
 interface TabItem {
@@ -16,7 +16,7 @@ interface TabItem {
 
 const props = defineProps<{
 	selectType: string
-	dataSet?: TypeDataSet
+	dataSet: UnwrapRef<TypeDataSet>
 }>();
 
 const updateEmit = defineEmits<{

@@ -30,6 +30,13 @@ export class Attribute implements PropertiesHolder {
 		return this._value;
 	}
 	
+	get name(): string {
+		const displayName = this.properties.getProperty('displayName')?.localValue?.zh_CN
+		if (displayName) {
+			return displayName;
+		}
+		return this.key;
+	}
 	
 	toJson(): string {
 		return this.value;
