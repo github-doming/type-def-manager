@@ -4,7 +4,7 @@ import {getPropertyValue} from "@/views/js/type/type-factory-helper";
 
 
 export class AttributeDataSet {
-	public nodes: Map<string, Attribute>;
+	private nodes: Map<string, Attribute>;
 	
 	constructor() {
 		this.nodes = new Map();
@@ -21,6 +21,10 @@ export class AttributeDataSet {
 	
 	values(): IterableIterator<Attribute> {
 		return this.nodes.values();
+	}
+	
+	keys(): IterableIterator<string> {
+		return this.nodes.keys();
 	}
 	
 	toJson() {
@@ -90,11 +94,6 @@ export class Attribute implements PropertiesHolder {
 	get constraints(): any[] {
 		return this._constraints;
 	}
-	
-	get description(): string {
-		return getPropertyValue('description', this);
-	}
-	
 	
 	toJson(): string {
 		const jsonResult: any = {};

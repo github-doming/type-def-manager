@@ -2,7 +2,7 @@
 	<a-layout>
 		<TypeHomeHeader v-model:select-type="selectType" :dataSet="dataSet"/>
 		<TypeHomeContent v-model:selected-operation="typeOperation" v-model:selected-menu="typeMenu">
-			<component :is="contentComponent" :type="dataSet.getType(selectType)"></component>
+			<component :is="contentComponent" :type="dataSet.getType(selectType)" :dataSet="dataSet"></component>
 		</TypeHomeContent>
 		<TypeHomeFooter @upload-types="uploadTypes" @save-types="saveTypes"></TypeHomeFooter>
 	</a-layout>
@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import {ref, shallowRef, watch} from 'vue';
-import {Type, TypeDataSet} from "@/views/js/type";
+import {TypeDataSet} from "@/views/js/type";
 import {getContentComponent} from "@/views/js/TypeDefHelper";
 
 import TypeHomeHeader from './TypeHomeHeader.vue'
@@ -20,8 +20,8 @@ import TypeErrorPage from '@/views/components/TypeErrorPage.vue'
 import {analysisTypeInfo} from "@/views/js/type/type-factory-helper";
 
 
-const typeOperation = ref<string>('BaseInfo');
-const typeMenu = ref<string>('Base');
+const typeOperation = ref<string>('PropertyInfo');
+const typeMenu = ref<string>('Property');
 const selectType = ref<string>('');
 const dataSet = ref<TypeDataSet>(new TypeDataSet);
 

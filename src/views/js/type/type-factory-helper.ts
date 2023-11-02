@@ -5,7 +5,6 @@ import {
 	PropertiesContext,
 	PropertiesHolder,
 	Property,
-	PropertyDataSet
 } from "@/views/js/type/property";
 import {Type, TypeDataSet} from "@/views/js/type";
 import {Attribute} from "@/views/js/type/attribute";
@@ -60,7 +59,9 @@ export const analysisAttributeInfo = (dataSet: any, type: Type, typeDataSet: Unw
 	
 	const attribute = new Attribute(name, context, nonPersisted, datatypeKey);
 	type.attributes.setAttribute(attribute)
-	
+	for (const item of dataSet['properties']) {
+		analysisPropertyInfo(item, attribute, typeDataSet);
+	}
 	for (const defaultValue of dataSet['defaultValues']) {
 		attribute.defaultValues.push(defaultValue)
 	}
@@ -77,4 +78,30 @@ export const getPropertyValue = (key: string, propertiesHolder: PropertiesHolder
 		return description;
 	}
 	return propertiesHolder.key;
+}
+
+export const getAttribute = (attributeKey: string, type: Type): Attribute => {
+	const attribute = type.attributes.getAttribute(attributeKey);
+	if (attribute) {
+		return attribute;
+	}
+	if (type.parent) {
+		return getAttribute(attributeKey, type.parent);
+	}
+	debugger
+	throw new Error('The '+attributeKey+' attribute does not exist in the type ' + type.displayName + '.');
+}
+
+export const getAttributeProperty = (propertyKey: string, attributeKey: string, type: Type): Property | undefined => {
+	const attribute = type.attributes.getAttribute(attributeKey);
+	if (attribute) {
+		const property = attribute.properties.getProperty(propertyKey);
+		if (property) {
+			return property;
+		}
+	}
+	if (type.parent) {
+		return getAttributeProperty(propertyKey, attributeKey, type.parent);
+	}
+	return undefined;
 }

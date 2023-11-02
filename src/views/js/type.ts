@@ -115,6 +115,16 @@ export class Type implements PropertiesContext, PropertiesHolder {
 		return jsonResult;
 	}
 	
+	public allAttributeKeys(): Set<string> {
+		const result: Set<string> = new Set<string>(this.attributes.keys());
+		if (this.parent) {
+			for (const key of this.parent.allAttributeKeys()) {
+				result.add(key);
+			}
+		}
+		return result;
+	}
+	
 }
 
 

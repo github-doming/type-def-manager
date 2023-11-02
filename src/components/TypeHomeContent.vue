@@ -15,9 +15,8 @@
   
 <script lang="ts" setup>
 
-import { computed, defineProps, defineEmits, reactive, ref } from 'vue';
-import type { ItemType } from 'ant-design-vue';
-import { getMenuItem } from "../views/js/TypeDefHelper";
+import { computed, defineProps, defineEmits } from 'vue';
+import { operationItems } from "@/views/js/TypeDefHelper";
 
 const props = defineProps<{
     selectedOperation: string,
@@ -44,24 +43,6 @@ const openKeys = computed<string[]>({
     }
 })
 
-
-
-
-const operationItems: ItemType[] = reactive([
-    getMenuItem('基础', 'Base', [
-        getMenuItem('基本信息', 'BaseInfo'),
-        getMenuItem('初始化规则', 'InitRule'),
-        getMenuItem('模型扩列', 'ExpandColumn'),
-    ]),
-
-    getMenuItem('属性', 'Property', [
-        getMenuItem('属性信息', 'PropertyInfo'),
-        getMenuItem('约束', 'Constraints'),
-        getMenuItem('默认值', 'DefaultValue'),
-        getMenuItem('密级', 'SecretLevel'),
-    ]),
-    getMenuItem('布局', 'Layout'),
-]);
 
 </script>
   
