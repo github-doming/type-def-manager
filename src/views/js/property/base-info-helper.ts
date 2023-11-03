@@ -1,9 +1,10 @@
-import {TableColumnType} from "ant-design-vue";
-import {Type} from "@/views/js/type";
+import {ref, Ref} from "vue";
+import {SelectProps, TableColumnType} from "ant-design-vue";
+import {Type, TypeDataSet} from "@/views/js/type";
 import {getAttribute, getAttributeProperty} from "@/views/js/type/type-factory-helper";
 import {Attribute} from "@/views/js/type/attribute";
 import {Property} from "@/views/js/type/property";
-import {ref, Ref} from "vue";
+import {ColumnItem} from "@/views/js/TypeDefHelper";
 
 
 export interface PropertyInfoItem {
@@ -18,7 +19,7 @@ export interface PropertyInfoItem {
 	descriptionContextKey: string | undefined;
 }
 
-export function analysisPropertyColumns(filtered: any): TableColumnType[] {
+export const analysisPropertyColumns = (filtered: any): TableColumnType[] => {
 	return [
 		{
 			title: '内部名称',
@@ -75,20 +76,76 @@ export const analysisPropertyBaseInfo = (type: Type | undefined): PropertyInfoIt
 	return dataSource;
 }
 
+export const searchOptions = (): {
+	filteredInfo: Ref,
+	searchValue: Ref<string>,
+	searchContext: Ref<string>,
+	searchSelectOptions: Ref<SelectProps['options']>,
+	searchProperty: () => void
+	searchContextChange: () => void
+} => {
+	
+	const filteredInfo = ref();
+	const searchValue = ref<string>('');
+	const searchContext = ref<string>('key');
+	const searchSelectOptions = ref<SelectProps['options']>([
+		{value: 'key', label: '内部名称',}, {value: 'context', label: '主体',},
+		{value: 'datatype', label: '数据类型',}, {value: 'displayName', label: '显示名称',},
+		{value: 'description', label: '描述',},
+	]);
+	
+	const searchProperty = () => {
+		filteredInfo.value = {};
+		filteredInfo.value[searchContext.value] = [searchValue.value?.toLocaleLowerCase()];
+	}
+	const searchContextChange = () => {
+		searchValue.value = '';
+		searchProperty();
+	}
+	
+	return {
+		filteredInfo, searchValue, searchContext, searchSelectOptions, searchProperty, searchContextChange
+	}
+}
 
-export const propertySelectionMethod = (): {
+
+export const selectionOptions = (): {
 	propertyRowKeys: Ref<string[]>,
 	onSelectionChange: (changeRowKeys: string[]) => void
 } => {
 	const propertyRowKeys = ref<PropertyInfoItem['key'][]>([]);
 	const onSelectionChange = (changeRowKeys: string[]) => {
-		console.log('selectedRowKeys changed: ', changeRowKeys);
 		propertyRowKeys.value = changeRowKeys;
 	}
 	return {
 		propertyRowKeys, onSelectionChange
 	}
 };
+
+
+export const showOptions = (): {
+	showFromParent: (column: ColumnItem, record: PropertyInfoItem, typeKey: string | undefined) => boolean,
+	showContext: (column: ColumnItem, record: PropertyInfoItem, dataSet: TypeDataSet) => string | undefined,
+} => {
+	
+	const showFromParent = (column: ColumnItem, record: PropertyInfoItem, typeKey: string | undefined): boolean => {
+		if (!['displayName', 'description'].includes(column.dataIndex)) {
+			return false
+		}
+		const contextKey = record[column.dataIndex + 'ContextKey'];
+		if (contextKey) {
+			return contextKey != typeKey;
+		}
+		return false
+	}
+	const showContext = (column: ColumnItem, record: PropertyInfoItem, dataSet: TypeDataSet) => {
+		const contextKey = record[column.dataIndex + 'ContextKey'] + '';
+		return dataSet?.getType(contextKey)?.displayName
+	}
+	return {
+		showFromParent, showContext
+	}
+}
 
 
 const propertyShow = (attribute: Attribute, property: Property | undefined): string => {
